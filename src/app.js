@@ -4,6 +4,7 @@ const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const contactRoutes = require('./routes/contact.routes');
+const authRoutes = require('./routes/auth.routes');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
 
 // Initialize Express app
@@ -30,6 +31,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactRoutes);
 
 // Health check endpoint
@@ -48,6 +50,7 @@ app.get('/', (req, res) => {
         message: 'Contact Management API',
         documentation: '/api-docs',
         endpoints: {
+            auth: '/api/auth',
             contacts: '/api/contacts'
         }
     });

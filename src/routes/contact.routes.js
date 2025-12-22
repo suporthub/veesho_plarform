@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const { uploadContactFiles } = require('../middlewares/upload.middleware');
+const { authenticateToken, authorizeRoles } = require('../middlewares/auth.middleware');
 const {
     createContact,
     getAllContacts,
@@ -148,8 +149,10 @@ router.post('/', uploadContactFiles, createValidation, createContact);
  * @swagger
  * /api/contacts:
  *   get:
- *     summary: Get all contacts
+ *     summary: Get all contacts (requires authentication)
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all contacts
@@ -169,15 +172,19 @@ router.post('/', uploadContactFiles, createValidation, createContact);
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: Unauthorized
  */
-router.get('/', getAllContacts);
+router.get('/', authenticateToken, authorizeRoles('read', 'write', 'super_admin'), getAllContacts);
 
 /**
  * @swagger
  * /api/contacts/{id}:
  *   get:
- *     summary: Get a contact by ID
+ *     summary: Get a contact by ID (requires authentication)
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -200,6 +207,8 @@ router.get('/', getAllContacts);
  *                   type: string
  *                 data:
  *                   $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Contact not found
  *         content:
@@ -207,14 +216,16 @@ router.get('/', getAllContacts);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', getContactById);
+router.get('/:id', authenticateToken, authorizeRoles('read', 'write', 'super_admin'), getContactById);
 
 /**
  * @swagger
  * /api/contacts/{id}:
  *   put:
- *     summary: Update a contact
+ *     summary: Update a contact (requires write or super_admin role)
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -273,19 +284,25 @@ router.get('/:id', getContactById);
  *                   type: string
  *                 data:
  *                   $ref: '#/components/schemas/Contact'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires write or super_admin role
  *       404:
  *         description: Contact not found
  *       400:
  *         description: Validation error
  */
-router.put('/:id', uploadContactFiles, updateValidation, updateContact);
+router.put('/:id', authenticateToken, authorizeRoles('write', 'super_admin'), uploadContactFiles, updateValidation, updateContact);
 
 /**
  * @swagger
  * /api/contacts/{id}:
  *   delete:
- *     summary: Delete a contact
+ *     summary: Delete a contact (requires super_admin role)
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -311,9 +328,13 @@ router.put('/:id', uploadContactFiles, updateValidation, updateContact);
  *                   properties:
  *                     id:
  *                       type: integer
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires super_admin role
  *       404:
  *         description: Contact not found
  */
-router.delete('/:id', deleteContact);
+router.delete('/:id', authenticateToken, authorizeRoles('super_admin'), deleteContact);
 
 module.exports = router;

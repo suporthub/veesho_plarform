@@ -6,7 +6,7 @@ const options = {
         info: {
             title: 'Contact Management API',
             version: '1.0.0',
-            description: 'Production-ready API for managing contacts with file uploads',
+            description: 'Production-ready API for managing contacts with file uploads and JWT authentication',
             contact: {
                 name: 'API Support'
             }
@@ -18,7 +18,31 @@ const options = {
             }
         ],
         components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                    description: 'Enter JWT token from login response'
+                }
+            },
             schemas: {
+                Admin: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'integer', description: 'Auto-generated ID' },
+                        username: { type: 'string', description: 'Admin username' },
+                        email: { type: 'string', format: 'email', description: 'Admin email' },
+                        role: {
+                            type: 'string',
+                            enum: ['read', 'write', 'super_admin'],
+                            description: 'Admin role'
+                        },
+                        is_active: { type: 'boolean', description: 'Account status' },
+                        created_at: { type: 'string', format: 'date-time' },
+                        updated_at: { type: 'string', format: 'date-time' }
+                    }
+                },
                 Contact: {
                     type: 'object',
                     properties: {
