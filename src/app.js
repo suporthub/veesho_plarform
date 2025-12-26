@@ -5,6 +5,8 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const contactRoutes = require('./routes/contact.routes');
 const authRoutes = require('./routes/auth.routes');
+const groupsRoutes = require('./routes/groups.routes');
+const demoUsersRoutes = require('./routes/demo-users.routes');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
 
 // Initialize Express app
@@ -33,6 +35,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/groups', groupsRoutes);
+app.use('/api/demo-users', demoUsersRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
